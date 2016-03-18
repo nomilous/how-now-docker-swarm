@@ -42,7 +42,7 @@ ssh swarm-02.snowball.global sudo docker network ls
 
 ```bash
 # -d - to detatch
-# -e - to set environment variables in container - here specifying constraint - which swarm node to run on per 'seq' label assigned in [02-Install-Docker](https://github.com/consent-global/docker-redis-kue/blob/master/notes/01-Create-Docker-Swarm/02-Install-Docker.md)
+# -e - to set environment variables in container - here specifying constraint - which swarm node to run on per 'seq' label assigned in [03-Install-Docker](https://github.com/nomilous/how-now-docker-swarm/blob/master/1-install/03-Install-Docker.md)
 # ubuntu - name of image
 # sleep 1000 - shell instruction - runs in container - here simply to keep the container running - most containers are designed to exit when 'done'
 
