@@ -2,6 +2,8 @@
 
 ie. using Dockerfile
 
+**These instructions assume you are using the `swarm` alias created in [01-Workstation-Access](https://github.com/nomilous/how-now-docker-swarm/blob/master/2-use/01-Workstation-Access.md)**
+
 This repo has 4 custom containers in `./node_modules/swarm-*`
 
 One of them is a webserver and requires access from the outside. Using `-p` argument to the run command can create a port mapping from the outside to a port on the container. But it is necessary to create that continer on a specific swarm node so that we know which server the mapped port is listening on.
