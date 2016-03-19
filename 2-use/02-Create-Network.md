@@ -2,16 +2,14 @@
 
 Creating a named network in the swarm and pushing containers into the network allows for the containers to easily connect to one another by name.
 
-**These instructions assume you are using the `swarm` alias created in [01-Workstation-Access](https://github.com/nomilous/how-now-docker-swarm/blob/master/2-use/01-Workstation-Access.md)**
-
 ## Create Named Network
 
 ```bash
-# docker network create my_net
-swarm network create my_net
+docker network create my_net
+
 fe66b8bbf7cd4b9c29fb9a3b349500bfe037b5e0b5ead87b4eadd511cf940338
 
-swarm network ls
+docker network ls
 
 # NETWORK ID          NAME                              DRIVER
 # 95ee2160e73f        swarm-01.snowball.global/host     host
@@ -46,11 +44,11 @@ ssh swarm-02.snowball.global sudo docker network ls
 # ubuntu - name of image
 # sleep 1000 - shell instruction - runs in container - here simply to keep the container running - most containers are designed to exit when 'done'
 
-swarm run -d --name machine1 --net my_net -e constraint:seq==01 ubuntu sleep 10000
-swarm run -d --name machine2 --net my_net -e constraint:seq==01 ubuntu sleep 10000
-swarm run -d --name machine3 --net my_net -e constraint:seq==03 ubuntu sleep 10000
+docker run -d --name machine1 --net my_net -e constraint:seq==01 ubuntu sleep 10000
+docker run -d --name machine2 --net my_net -e constraint:seq==01 ubuntu sleep 10000
+docker run -d --name machine3 --net my_net -e constraint:seq==03 ubuntu sleep 10000
 
-swarm ps
+docker ps
 # CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 # e0698e957e1c        ubuntu              "sleep 10000"       18 seconds ago      Up 15 seconds                           # swarm-03.snowball.global/machine3
 # 1290000bde6c        ubuntu              "sleep 10000"       28 seconds ago      Up 25 seconds                           # swarm-01.snowball.global/machine2
@@ -61,7 +59,7 @@ swarm ps
 # -t - allocate tty
 # -i - keep stdin open
 
-swarm exec -ti machine1 bash
+docker exec -ti machine1 bash
 
 # root@6c0571d4e1d5:/#
 # root@6c0571d4e1d5:/# cat /etc/hosts   <-------------
@@ -88,15 +86,15 @@ swarm exec -ti machine1 bash
 
 # same goes for the others
 
-swarm exec machine2 cat /etc/hosts
-swarm exec machine3 cat /etc/hosts
+docker exec machine2 cat /etc/hosts
+docker exec machine3 cat /etc/hosts
 
 ```
 
 ## Clean up
 
 ```bash
-swarm ps
-swarm rm -f machine1 machine2 machine3
-swarm network rm my_net
+docker ps
+docker rm -f machine1 machine2 machine3
+docker network rm my_net
 ```

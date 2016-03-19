@@ -2,8 +2,6 @@
 
 ie. using Dockerfile
 
-**These instructions assume you are using the `swarm` alias created in [01-Workstation-Access](https://github.com/nomilous/how-now-docker-swarm/blob/master/2-use/01-Workstation-Access.md)**
-
 This repo has 4 custom containers in `./node_modules/swarm-*`
 
 One of them is a webserver and requires access from the outside. Using `-p` argument to the run command can create a port mapping from the outside to a port on the container. But it is necessary to create that continer on a specific swarm node so that we know which server the mapped port is listening on.
@@ -34,15 +32,15 @@ ping test
 **assumes current directory is root of repo**
 
 ```bash
-swarm network create test_net
+docker network create test_net
 
 # NOTE: to not unnecessarily copy node_modules with the build context
 cat node_modules/swarm-api/.dockerignore
 
-swarm build -t example/swarm-redis node_modules/swarm-redis
-swarm build -t example/swarm-api node_modules/swarm-api
-swarm build -t example/swarm-worker node_modules/swarm-worker
-swarm build -t example/swarm-kue-dashboard node_modules/swarm-kue-dashboard
+docker build -t example/swarm-redis node_modules/swarm-redis
+docker build -t example/swarm-api node_modules/swarm-api
+docker build -t example/swarm-worker node_modules/swarm-worker
+docker build -t example/swarm-kue-dashboard node_modules/swarm-kue-dashboard
 ```
 
 Changed containers need to be **rebuilt**.
@@ -51,22 +49,22 @@ Changed containers need to be **rebuilt**.
 
 ```bash
 
-swarm run --net=test_net -d --name swarm-redis example/swarm-redis
+docker run --net=test_net -d --name swarm-redis example/swarm-redis
 
 # note assigned name 'swarm-redis' is used in workers to connect to redis
 # node_modules/swarm-worker/index.js
 
-swarm run --net=test_net -d --name swarm-worker1 example/swarm-worker
-swarm run --net=test_net -d --name swarm-worker2 example/swarm-worker
-swarm run --net=test_net -d --name swarm-worker3 example/swarm-worker
-swarm run --net=test_net -d --name swarm-worker4 example/swarm-worker
-swarm run --net=test_net -d --name swarm-worker5 example/swarm-worker
+docker run --net=test_net -d --name swarm-worker1 example/swarm-worker
+docker run --net=test_net -d --name swarm-worker2 example/swarm-worker
+docker run --net=test_net -d --name swarm-worker3 example/swarm-worker
+docker run --net=test_net -d --name swarm-worker4 example/swarm-worker
+docker run --net=test_net -d --name swarm-worker5 example/swarm-worker
 
 # start api (webserver) and kue-dashboard on swarm-03 (ping test)
 # with ports mapped to the outside
 
-swarm run --net=test_net -p 5000:8080 -d --name swarm-api -e constraint:seq==03 example/swarm-api
-swarm run --net=test_net -p 5001:8081 -d --name swarm-kue-dashboard -e constraint:seq==03 example/swarm-kue-dashboard
+docker run --net=test_net -p 5000:8080 -d --name swarm-api -e constraint:seq==03 example/swarm-api
+docker run --net=test_net -p 5001:8081 -d --name swarm-kue-dashboard -e constraint:seq==03 example/swarm-kue-dashboard
 
 swarm ps
 ```
@@ -90,9 +88,9 @@ curl test:5000/arbitrary/url
 It seems that a full delete/rebuild/run is necessary.
 
 ```bash
-swarm rm -f swarm-api
-swarm build -t example/swarm-api node_modules/swarm-api
-swarm run --net=test_net -p 5000:8080 -d --name swarm-api -e constraint:seq==03 example/swarm-api
+docker rm -f swarm-api
+docker build -t example/swarm-api node_modules/swarm-api
+docker run --net=test_net -p 5000:8080 -d --name swarm-api -e constraint:seq==03 example/swarm-api
 
 
 
@@ -100,7 +98,7 @@ swarm run --net=test_net -p 5000:8080 -d --name swarm-api -e constraint:seq==03 
 #
 # i have experienced the above still then running the old image... (perhaps this helps)
 
-swarm images
+docker images
 
 # REPOSITORY                    TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
 # example/swarm-api             latest              fc980cc7fcd5        7 minutes ago       669.8 MB
@@ -114,13 +112,13 @@ swarm images
 # redis                         latest              8bccd73928d9        2 weeks ago         151.3 MB
 
 # delete image
-swarm rmi -f fc980cc7fcd5
+docker rmi -f fc980cc7fcd5
 ```
 
 ## Clear Up
 
 ```bash
-swarm rm -f swarm-worker1 swarm-worker2 swarm-worker3 swarm-worker4 swarm-worker5 \
+docker rm -f swarm-worker1 swarm-worker2 swarm-worker3 swarm-worker4 swarm-worker5 \
   swarm-api swarm-kue-dashboard swarm-redis
-swarm network rm test_net
+docker network rm test_net
 ```
